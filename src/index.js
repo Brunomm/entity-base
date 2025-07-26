@@ -170,6 +170,8 @@ const fixedProperties = {
 
 function getOrConvertToInstance(klass, params) {
   if (!params) return null;
+  if (params instanceof klass) return params
+
   const obj = new klass(params);
   return typeof obj === 'function' ? new obj(params) : obj;
 }
