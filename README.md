@@ -1,8 +1,3 @@
-Com certeza! Aqui está um modelo de `README.md` profissional, bem estruturado, e totalmente alinhado com o propósito e funcionamento do seu projeto `RecordBase`.
-
----
-
-```md
 # 🧩 RecordBase
 
 **RecordBase** is a lightweight, schema-driven, immutable base class for modeling data in modern JavaScript/TypeScript applications — especially useful in frontend frameworks like **React** and **Vue**.
@@ -167,4 +162,4 @@ MIT License.
 `RecordBase` helps you design predictable, testable, and highly maintainable data models in the frontend world. Whether you're handling nested form state or syncing data with an API — it gives you a clean, immutable foundation to build upon.
 
 Happy coding! 🔨🤖
-```
+
