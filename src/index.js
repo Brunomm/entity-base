@@ -110,6 +110,7 @@ class Errors {
   clone(){
     const _clone = {...this};
     Object.setPrototypeOf( _clone, this.constructor.prototype );
+    definePropertyGetters(_clone)
     return _clone;
   }
 
@@ -185,7 +186,7 @@ function manageHasManyValue(klass, _key, value) {
     ? value
     : value instanceof Map
     ? Array.from(value.values())
-    : [value];
+    : Object.values(value)
 
   for (const item of arr) {
     const record = getOrConvertToInstance(klass, item);
@@ -193,6 +194,18 @@ function manageHasManyValue(klass, _key, value) {
   }
 
   return collection;
+}
+
+function definePropertyGetters(instance) {
+  for (const key of Object.keys(instance.constructor?.defaultAttributes || {})) {
+    if (!(key in instance)) {
+      Object.defineProperty(instance, key, {
+        get: () => instance.get(key),
+        enumerable: false,
+        configurable: true
+      });
+    }
+  }
 }
 
 class RecordBase {
@@ -238,6 +251,8 @@ class RecordBase {
         this._attributes[key] = input[key];
       }
     }
+
+    definePropertyGetters(this)
   }
 
   get _belongsTo() {
@@ -265,7 +280,7 @@ class RecordBase {
   }
 
   get recordID() {
-    return Number(this.get(this.primaryKey));
+    return this.get(this.primaryKey);
   }
 
   get validations() {
@@ -279,29 +294,94 @@ class RecordBase {
     return this._attributes[attr];
   }
 
-  set(key, val) {
+  set(key, val, defineGetters = true) {
+    if (this._attributes[key] === val) return this;
+
     if (this.isBelongsTo(key)) {
       const newRelations = { ...this._relations, [key]: getOrConvertToInstance(this._belongsTo[key], val) };
-      return this._clone(this._attributes, newRelations);
+      const newInstance = this._clone(this._attributes, newRelations);
+
+      if(defineGetters) { definePropertyGetters(newInstance) }
+
+      return newInstance
     }
 
     if (this.isHasMany(key)) {
       const newRelations = { ...this._relations, [key]: manageHasManyValue(this._hasMany[key], key, val) };
-      return this._clone(this._attributes, newRelations);
+      const newInstance = this._clone(this._attributes, newRelations);
+      if(defineGetters) { definePropertyGetters(newInstance) }
+
+      return newInstance;
     }
 
-    if (this._attributes[key] === val) return this;
-
     const newAttributes = { ...this._attributes, [key]: val };
-    return this._clone(newAttributes, this._relations);
+
+    const newInstance = this._clone(newAttributes, this._relations);
+    if(defineGetters) { definePropertyGetters(newInstance) }
+
+    return newInstance
   }
 
   updateAttributes(newAttrs = {}) {
     let updated = this;
     for (const key of Object.keys(newAttrs)) {
-      updated = updated.set(key, newAttrs[key]);
+      updated = updated.set(key, newAttrs[key], false);
     }
+
+    definePropertyGetters(updated)
     return updated;
+  }
+
+  addNested(relationName, newAttrs = {}) {
+    const relationInstances = this.get(relationName);
+    const newRelationInstance = new this._hasMany[relationName](newAttrs)
+
+    const newRelationInstances = new Map(this.get(relationName));
+    newRelationInstances.set(newRelationInstance.idOrToken, newRelationInstance);
+
+    return [
+      this.set(relationName, newRelationInstances),
+      newRelationInstance
+    ];
+  }
+
+  updateNested(relationName, relationKey, newAttrs = {}) {
+    const relationInstance = this.get(relationName).get(relationKey);
+    if(isBlank(relationInstance)) throw 'invalid relation key'
+    if(isBlank(newAttrs)) return this
+
+    const updatedRelationInstance = relationInstance.updateAttributes(newAttrs)
+
+    const newRelationInstances = new Map(this.get(relationName));
+    newRelationInstances.set(relationKey, updatedRelationInstance);
+
+    return [
+      this.set(relationName, newRelationInstances),
+      updatedRelationInstance
+    ];
+  }
+
+  updateManyNested(relationName, newAttrs = {}, relationKeys = null) {
+    if(isBlank(newAttrs)) return this
+
+    let newInstances = new Map()
+    let changedInstances = []
+    for (const relInstance of Array.from(this.get(relationName).values())) {
+      let newInstance = relInstance
+
+      if (isBlank(relationKeys) || relationKeys.includes(relInstance.idOrToken)) {
+        newInstance = newInstance.updateAttributes(newAttrs)
+        changedInstances = [...changedInstances, newInstance]
+      }
+
+      newInstances.set(relInstance.idOrToken, newInstance)
+    }
+
+    return [this.set(relationName, newInstances), changedInstances];
+  }
+
+  array(relationName) {
+    return Array.from(this.get(relationName).values())
   }
 
   toObject() {
@@ -312,7 +392,21 @@ class RecordBase {
   }
 
   toParams() {
-    return this.toObject();
+    const selfInstance = this
+    return {
+      ...this._attributes,
+      ...Object.fromEntries(Object.keys(selfInstance._relations).map( key => {
+        if (selfInstance.isHasMany(key)) {
+          return [
+            key,
+            selfInstance.array(key).map( relInstance => relInstance.toParams() )
+          ]
+
+        } else {
+          return [key, selfInstance.get(key).toParams()]
+        }
+      }))
+    };
   }
 
   isBelongsTo(key) {
@@ -335,9 +429,11 @@ class RecordBase {
     const errors = this.get('errors').clone();
     errors.clear();
 
+    const currentInstance = this
+
     Object.entries(this.validations).forEach(([attr, rules]) => {
       rules.forEach((ruleFn) => {
-        const state = ruleFn(this.get(attr), attr);
+        const state = ruleFn(currentInstance.get(attr), currentInstance);
         if (!state.isValid) {
           errors.add(attr, state.message);
         }
