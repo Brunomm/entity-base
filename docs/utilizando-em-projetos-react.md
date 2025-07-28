@@ -1,25 +1,25 @@
-# Utilizando o `RecordBase` em Projetos React
+# Utilizando o `EntityBase` em Projetos React
 
-O `RecordBase` é uma ferramenta poderosa para o gerenciamento de estado em aplicações React, especialmente em cenários complexos que envolvem formulários, dados aninhados e a necessidade de um controle de estado previsível. A imutabilidade inerente do `RecordBase` se alinha perfeitamente com a filosofia do React, onde as atualizações de estado devem ser feitas de forma imutável para garantir que o React detecte as mudanças e renderize os componentes de forma eficiente.
+O `EntityBase` é uma ferramenta poderosa para o gerenciamento de estado em aplicações React, especialmente em cenários complexos que envolvem formulários, dados aninhados e a necessidade de um controle de estado previsível. A imutabilidade inerente do `EntityBase` se alinha perfeitamente com a filosofia do React, onde as atualizações de estado devem ser feitas de forma imutável para garantir que o React detecte as mudanças e renderize os componentes de forma eficiente.
 
-Este guia demonstra como integrar o `RecordBase` em seus componentes React, com foco no controle de estado de formulários e na manipulação de associações `hasMany`, como em um carrinho de compras.
+Este guia demonstra como integrar o `EntityBase` em seus componentes React, com foco no controle de estado de formulários e na manipulação de associações `hasMany`, como em um carrinho de compras.
 
 ## 1. Configuração Inicial
 
-Primeiro, certifique-se de que suas entidades `RecordBase` (como `Customer`, `Order`, `Product`, etc.) estão definidas e exportadas de um arquivo, como `marketplace_entities.js`.
+Primeiro, certifique-se de que suas entidades `EntityBase` (como `Customer`, `Order`, `Product`, etc.) estão definidas e exportadas de um arquivo, como `marketplace_entities.js`.
 
 ```javascript
 // marketplace_entities.js
-import RecordBase from './index';
+import EntityBase from 'entity-base';
 
 // ... (definição das classes Address, Customer, Product, OrderItem, Payment, Order)
 
 export { Address, Customer, Product, OrderItem, Payment, Order };
 ```
 
-## 2. Gerenciamento de Estado com `useState` e `RecordBase`
+## 2. Gerenciamento de Estado com `useState` e `EntityBase`
 
-Você pode gerenciar o estado de um componente React utilizando o hook `useState` com uma instância de `RecordBase`. Como o `RecordBase` é imutável, cada vez que você atualiza o estado, uma nova instância do objeto é criada, o que aciona a re-renderização do componente no React.
+Você pode gerenciar o estado de um componente React utilizando o hook `useState` com uma instância de `EntityBase`. Como o `EntityBase` é imutável, cada vez que você atualiza o estado, uma nova instância do objeto é criada, o que aciona a re-renderização do componente no React.
 
 ### Exemplo: Formulário de Cadastro de Cliente
 
@@ -101,11 +101,11 @@ Neste exemplo:
 
 ## 3. Manipulando Associações `hasMany` em React
 
-O `RecordBase` simplifica o gerenciamento de associações `hasMany`, como os itens de um carrinho de compras. Os métodos `addNested`, `updateNested` e `removeNested` (que pode ser implementado) permitem manipular a coleção de forma imutável.
+O `EntityBase` simplifica o gerenciamento de associações `hasMany`, como os itens de um carrinho de compras. Os métodos `addNested`, `updateNested` e `removeNested` (que pode ser implementado) permitem manipular a coleção de forma imutável.
 
 ### A Função `array(relationName)`
 
-Uma das funcionalidades mais úteis para trabalhar com `hasMany` em React é o método `array(relationName)`. Relacionamentos `hasMany` são armazenados como `Map` para acesso eficiente por chave. No entanto, para renderizar uma lista de componentes em React, um array é necessário. O método `array()` converte o `Map` em um array de instâncias `RecordBase`, facilitando o uso do método `.map()` do JavaScript para renderização.
+Uma das funcionalidades mais úteis para trabalhar com `hasMany` em React é o método `array(relationName)`. Relacionamentos `hasMany` são armazenados como `Map` para acesso eficiente por chave. No entanto, para renderizar uma lista de componentes em React, um array é necessário. O método `array()` converte o `Map` em um array de instâncias `EntityBase`, facilitando o uso do método `.map()` do JavaScript para renderização.
 
 ### Exemplo: Componente de Carrinho de Compras
 
@@ -224,5 +224,5 @@ Neste exemplo de carrinho de compras:
 
 ## Conclusão
 
-O `RecordBase` oferece uma abordagem estruturada e imutável para o gerenciamento de estado em aplicações React. Ao combinar o `RecordBase` com o hook `useState`, você pode criar componentes com estado complexo de forma previsível e fácil de manter. A função `array()` é particularmente útil para simplificar a renderização de listas a partir de associações `hasMany`, tornando o código mais limpo e legível.
+O `EntityBase` oferece uma abordagem estruturada e imutável para o gerenciamento de estado em aplicações React. Ao combinar o `EntityBase` com o hook `useState`, você pode criar componentes com estado complexo de forma previsível e fácil de manter. A função `array()` é particularmente útil para simplificar a renderização de listas a partir de associações `hasMany`, tornando o código mais limpo e legível.
 

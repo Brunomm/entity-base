@@ -1,22 +1,22 @@
-# 📘 Documentação Abrangente do Módulo `RecordBase`
+# 📘 Documentação Abrangente do Módulo `EntityBase`
 
-O `RecordBase` é uma classe JavaScript projetada para simplificar a modelagem de dados em aplicações frontend, oferecendo um conjunto robusto de funcionalidades inspiradas em padrões de ORMs (Object-Relational Mappers) e no conceito de Active Record. Seu foco principal é a **imutabilidade**, garantindo que as operações de modificação de dados sempre resultem em novas instâncias, preservando a integridade do estado original. Isso o torna particularmente útil em frameworks reativos como React ou Vue, onde a detecção de mudanças e a consistência do estado são cruciais.
+O `EntityBase` é uma classe JavaScript projetada para simplificar a modelagem de dados em aplicações frontend, oferecendo um conjunto robusto de funcionalidades inspiradas em padrões de ORMs (Object-Relational Mappers) e no conceito de Active Entity. Seu foco principal é a **imutabilidade**, garantindo que as operações de modificação de dados sempre resultem em novas instâncias, preservando a integridade do estado original. Isso o torna particularmente útil em frameworks reativos como React ou Vue, onde a detecção de mudanças e a consistência do estado são cruciais.
 
 ## 🧰 Principais Características
 
 *   **Imutabilidade por Padrão:** Todas as operações de modificação retornam novas instâncias, garantindo a previsibilidade do estado.
 *   **Campos Primários Auto-Injetados:** Inclui campos essenciais como `id`, `_token` (para identificação de novos registros antes da persistência) e `_created_at`.
 *   **Suporte a Relacionamentos:** Gerencia relacionamentos `hasMany` (um-para-muitos) e `belongsTo` (um-para-um ou muitos-para-um) de forma nativa.
-*   **Getters Automáticos:** Atributos e relacionamentos podem ser acessados diretamente como propriedades da instância (`record.attributeName`).
+*   **Getters Automáticos:** Atributos e relacionamentos podem ser acessados diretamente como propriedades da instância (`entity.attributeName`).
 *   **API-Friendly:** Métodos como `.toParams()` e `.toObject()` facilitam a serialização de dados para comunicação com APIs RESTful.
 *   **Validação e Tratamento de Erros:** Sistema de validação declarativo e uma classe `Errors` dedicada para gerenciar mensagens de erro.
-*   **Métodos Auxiliares Úteis:** Inclui métodos para verificar o status de persistência (`isNewRecord()`, `isPersisted()`), validar (`validate()`, `isValid()`), e manipular dados aninhados (`addNested()`, `updateNested()`, `updateManyNested`).
+*   **Métodos Auxiliares Úteis:** Inclui métodos para verificar o status de persistência (`isNewEntity()`, `isPersisted()`), validar (`validate()`, `isValid()`), e manipular dados aninhados (`addNested()`, `updateNested()`, `updateManyNested`).
 
 ---
 
 ## ⚙️ Funções Utilitárias Internas
 
-O `RecordBase` utiliza algumas funções auxiliares que são fundamentais para seu funcionamento:
+O `EntityBase` utiliza algumas funções auxiliares que são fundamentais para seu funcionamento:
 
 *   `isObject(check)`: Verifica se um valor é um objeto JavaScript puro (não um array ou null).
 *   `isBlank(value)`: Determina se um valor está "em branco" (strings vazias, objetos/arrays vazios, nulos/indefinidos).
@@ -25,21 +25,21 @@ O `RecordBase` utiliza algumas funções auxiliares que são fundamentais para s
 *   `humanizeString(str)`: Converte uma string para um formato mais legível (ex: `camelCase` para `Camel Case`).
 *   `createUUID()`: Gera um UUID v4, usado para o `_token` de novos registros.
 *   `isString(v)`: Verifica se um valor é uma string.
-*   `getOrConvertToInstance(klass, params)`: Converte um objeto simples em uma instância da classe `RecordBase` especificada, ou retorna a instância se já for uma.
-*   `manageHasManyValue(klass, _key, value)`: Converte um array ou `Map` de dados em um `Map` de instâncias de `RecordBase` para relacionamentos `hasMany`.
+*   `getOrConvertToInstance(klass, params)`: Converte um objeto simples em uma instância da classe `EntityBase` especificada, ou retorna a instância se já for uma.
+*   `manageHasManyValue(klass, _key, value)`: Converte um array ou `Map` de dados em um `Map` de instâncias de `EntityBase` para relacionamentos `hasMany`.
 *   `definePropertyGetters(instance)`: Cria getters automáticos para os `defaultAttributes` de uma instância, permitindo acesso direto às propriedades.
 
 ---
 
 ## 🚨 Classe `Errors`
 
-A classe `Errors` é responsável por coletar, gerenciar e formatar mensagens de erro associadas a uma instância de `RecordBase`.
+A classe `Errors` é responsável por coletar, gerenciar e formatar mensagens de erro associadas a uma instância de `EntityBase`.
 
 ### Construtor
 
 `new Errors(model, messages={})`
 
-*   `model`: A instância do `RecordBase` à qual os erros estão associados. Usado para humanizar os nomes dos atributos nas mensagens completas.
+*   `model`: A instância do `EntityBase` à qual os erros estão associados. Usado para humanizar os nomes dos atributos nas mensagens completas.
 *   `messages`: Objeto opcional com mensagens de erro iniciais. Pode ser um objeto `{ atributo: [mensagem] }`, um array de strings (para erros `base`), ou uma combinação.
 
 ### Propriedades
@@ -53,13 +53,13 @@ A classe `Errors` é responsável por coletar, gerenciar e formatar mensagens de
 *   `clear()`: Limpa todas as mensagens de erro.
 *   `fullMessages(args={})`: Retorna um array de strings formatadas, combinando o nome humanizado do atributo com a mensagem. O argumento `forceBase` pode ser usado para exibir todos os erros como mensagens gerais.
 *   `isEmpty()`: Retorna `true` se não houver mensagens de erro.
-*   `clone()`: Cria uma cópia profunda da instância de `Errors`, essencial para a imutabilidade do `RecordBase`.
+*   `clone()`: Cria uma cópia profunda da instância de `Errors`, essencial para a imutabilidade do `EntityBase`.
 
 ---
 
-## 🏛️ Classe `RecordBase`
+## 🏛️ Classe `EntityBase`
 
-A classe `RecordBase` é a base para todos os seus modelos de dados. Ela deve ser estendida para criar suas entidades específicas.
+A classe `EntityBase` é a base para todos os seus modelos de dados. Ela deve ser estendida para criar suas entidades específicas.
 
 ### Propriedades Estáticas (Configuração do Modelo)
 
@@ -79,19 +79,19 @@ Estas propriedades são definidas na sua classe estendida e configuram o comport
     Define o nome da chave primária do modelo. O padrão é `'id'`. Sobrescreva se seu modelo usa uma chave diferente (ex: `'uuid'`).
 
 *   `static belongsTo = {}` (opcional):
-    Define relacionamentos um-para-um ou muitos-para-um. As chaves são os nomes dos relacionamentos e os valores são as classes `RecordBase` relacionadas.
+    Define relacionamentos um-para-um ou muitos-para-um. As chaves são os nomes dos relacionamentos e os valores são as classes `EntityBase` relacionadas.
     ```javascript
     static belongsTo = {
-      company: CompanyRecord
+      company: CompanyEntity
     };
     ```
 
 *   `static hasMany = {}` (opcional):
-    Define relacionamentos um-para-muitos. As chaves são os nomes dos relacionamentos e os valores são as classes `RecordBase` relacionadas. Os valores serão armazenados como `Map<idOrToken, RecordInstance>`.
+    Define relacionamentos um-para-muitos. As chaves são os nomes dos relacionamentos e os valores são as classes `EntityBase` relacionadas. Os valores serão armazenados como `Map<idOrToken, EntityInstance>`.
     ```javascript
     static hasMany = {
-      posts: PostRecord,
-      comments: CommentRecord
+      posts: PostEntity,
+      comments: CommentEntity
     };
     ```
 
@@ -114,14 +114,14 @@ Estas propriedades são definidas na sua classe estendida e configuram o comport
 
 ### Construtor
 
-`new RecordBase(args = {})`
+`new EntityBase(args = {})`
 
 O construtor inicializa uma nova instância:
 
 1.  Aplica `defaultProperties` e os `args` fornecidos.
 2.  Gera um `_token` (UUID) e define `_created_at`.
 3.  Cria uma nova instância da classe `Errors`.
-4.  Separa os `args` em atributos comuns (`_attributes`) e relacionamentos (`_relations`). Relacionamentos são instanciados como `RecordBase` (para `belongsTo`) ou `Map` de `RecordBase` (para `hasMany`).
+4.  Separa os `args` em atributos comuns (`_attributes`) e relacionamentos (`_relations`). Relacionamentos são instanciados como `EntityBase` (para `belongsTo`) ou `Map` de `EntityBase` (para `hasMany`).
 5.  Define getters automáticos para todos os `defaultAttributes`.
 
 ### Getters de Instância
@@ -129,8 +129,8 @@ O construtor inicializa uma nova instância:
 *   `_belongsTo`, `_hasMany`: Acessam as configurações estáticas de relacionamentos.
 *   `belongsToKeys`, `hasManyKeys`: Retornam arrays com as chaves dos relacionamentos.
 *   `primaryKey`: Retorna o nome da chave primária do modelo.
-*   `idOrToken`: Retorna o `recordID` se existir, caso contrário, o `_token`.
-*   `recordID`: Retorna o valor numérico da chave primária.
+*   `idOrToken`: Retorna o `entityID` se existir, caso contrário, o `_token`.
+*   `entityID`: Retorna o valor numérico da chave primária.
 *   `validations`: Retorna as regras de validação estáticas.
 
 ### Métodos de Instância
@@ -139,12 +139,12 @@ O construtor inicializa uma nova instância:
     Retorna o valor de um atributo ou relacionamento. Para `belongsTo`, retorna a instância do modelo relacionado. Para `hasMany`, retorna um `Map` de instâncias.
     ```javascript
     user.get('name'); // Acessa o atributo 'name'
-    user.get('company'); // Retorna a instância de CompanyRecord
-    user.get('orders'); // Retorna um Map de OrderRecord instances
+    user.get('company'); // Retorna a instância de CompanyEntity
+    user.get('orders'); // Retorna um Map de OrderEntity instances
     ```
 
 *   `set(key, val, defineGetters = true)`:
-    **Método fundamental para a imutabilidade.** Retorna uma **nova instância** do `RecordBase` com o `key` atualizado para `val`. Se `val` for o mesmo que o valor atual, a instância original é retornada para otimização.
+    **Método fundamental para a imutabilidade.** Retorna uma **nova instância** do `EntityBase` com o `key` atualizado para `val`. Se `val` for o mesmo que o valor atual, a instância original é retornada para otimização.
     ```javascript
     const updatedUser = user.set('name', 'Bob');
     console.log(user.name); // Alice (original)
@@ -153,25 +153,25 @@ O construtor inicializa uma nova instância:
     ```
 
 *   `updateAttributes(newAttrs = {})`:
-    Atualiza múltiplos atributos de uma vez. Retorna uma **nova instância** do `RecordBase` com todos os atributos especificados atualizados. Internamente, chama `set` para cada atributo.
+    Atualiza múltiplos atributos de uma vez. Retorna uma **nova instância** do `EntityBase` com todos os atributos especificados atualizados. Internamente, chama `set` para cada atributo.
     ```javascript
     const updatedUser = user.updateAttributes({ name: 'Alice L.', age: 30 });
     ```
 
 *   `addNested(relationName, newAttrs = {})`:
-    Adiciona um novo registro a um relacionamento `hasMany`. Retorna um array contendo a **nova instância do `RecordBase` pai** (com o relacionamento atualizado) e a **nova instância do registro aninhado** que foi adicionado.
+    Adiciona um novo registro a um relacionamento `hasMany`. Retorna um array contendo a **nova instância do `EntityBase` pai** (com o relacionamento atualizado) e a **nova instância do registro aninhado** que foi adicionado.
     ```javascript
     const [updatedOrder, newItem] = order.addNested('items', { product: new Product({ name: 'Laptop' }), quantity: 1 });
     ```
 
 *   `updateNested(relationName, relationKey, newAttrs = {})`:
-    Atualiza um registro específico dentro de um relacionamento `hasMany`. Retorna um array contendo a **nova instância do `RecordBase` pai** e a **instância atualizada do registro aninhado**.
+    Atualiza um registro específico dentro de um relacionamento `hasMany`. Retorna um array contendo a **nova instância do `EntityBase` pai** e a **instância atualizada do registro aninhado**.
     ```javascript
     const [updatedOrder, updatedItem] = order.updateNested('items', itemId, { quantity: 2 });
     ```
 
 *   `updateManyNested(relationName, newAttrs = {}, relationKeys = null)`:
-    Atualiza múltiplos registros dentro de um relacionamento `hasMany`. Se `relationKeys` for nulo, todos os registros são atualizados. Retorna um array contendo a **nova instância do `RecordBase` pai** e um array das **instâncias atualizadas dos registros aninhados**.
+    Atualiza múltiplos registros dentro de um relacionamento `hasMany`. Se `relationKeys` for nulo, todos os registros são atualizados. Retorna um array contendo a **nova instância do `EntityBase` pai** e um array das **instâncias atualizadas dos registros aninhados**.
     ```javascript
     const [updatedOrder, changedItems] = order.updateManyNested('items', { status: 'shipped' });
     ```
@@ -200,11 +200,11 @@ O construtor inicializa uma nova instância:
 *   `isBelongsTo(key)`, `isHasMany(key)`:
     Verificam se uma chave corresponde a um relacionamento `belongsTo` ou `hasMany`.
 
-*   `isNewRecord()`, `isPersisted()`:
-    `isNewRecord()` retorna `true` se o registro não tiver um `id` (chave primária). `isPersisted()` é o oposto.
+*   `isNewEntity()`, `isPersisted()`:
+    `isNewEntity()` retorna `true` se o registro não tiver um `id` (chave primária). `isPersisted()` é o oposto.
 
 *   `validate()`, `isValid()`:
-    `validate()` executa as regras de validação e retorna uma **nova instância** do `RecordBase` com os erros atualizados. `isValid()` retorna `true` se não houver erros de validação.
+    `validate()` executa as regras de validação e retorna uma **nova instância** do `EntityBase` com os erros atualizados. `isValid()` retorna `true` se não houver erros de validação.
 
 *   `_clone(newAttributes, newRelations)`:
     Método interno para criar novas instâncias durante operações de modificação, mantendo a imutabilidade.
@@ -213,13 +213,13 @@ O construtor inicializa uma nova instância:
 
 ## 🛒 Exemplos de Uso: Entidades de Marketplace
 
-Vamos definir as entidades para um marketplace usando `RecordBase` e demonstrar seu uso com exemplos práticos.
+Vamos definir as entidades para um marketplace usando `EntityBase` e demonstrar seu uso com exemplos práticos.
 
 ```javascript
 // marketplace_entities.js
-import RecordBase from './index';
+import EntityBase from 'entity-base';
 
-class Address extends RecordBase {
+class Address extends EntityBase {
   static defaultAttributes = {
     street: '',
     number: '',
@@ -238,7 +238,7 @@ class Address extends RecordBase {
   };
 }
 
-class Customer extends RecordBase {
+class Customer extends EntityBase {
   static defaultAttributes = {
     name: '',
     email: '',
@@ -257,7 +257,7 @@ class Customer extends RecordBase {
   };
 }
 
-class Product extends RecordBase {
+class Product extends EntityBase {
   static defaultAttributes = {
     name: '',
     description: '',
@@ -276,7 +276,7 @@ class Product extends RecordBase {
   };
 }
 
-class OrderItem extends RecordBase {
+class OrderItem extends EntityBase {
   static defaultAttributes = {
     product: null,
     quantity: 0,
@@ -291,7 +291,7 @@ class OrderItem extends RecordBase {
   };
 }
 
-class Payment extends RecordBase {
+class Payment extends EntityBase {
   static defaultAttributes = {
     method: '',
     amount: 0,
@@ -305,7 +305,7 @@ class Payment extends RecordBase {
   };
 }
 
-class Order extends RecordBase {
+class Order extends EntityBase {
   static defaultAttributes = {
     customer: null,
     items: [],
@@ -448,7 +448,7 @@ const payment = new Payment({
 // 5. Criar Pedido
 const order = new Order({
   customer: customer,
-  items: [item1, item2], // Passando um array, RecordBase converterá para Map
+  items: [item1, item2], // Passando um array, EntityBase converterá para Map
   totalAmount: payment.amount,
   payment: payment,
   status: 'processing'
@@ -592,24 +592,24 @@ console.log(JSON.stringify(orderPayload, null, 2));
 
 ## 🧠 Boas Práticas e Recomendações
 
-Para tirar o máximo proveito do `RecordBase` e manter seu código limpo e consistente:
+Para tirar o máximo proveito do `EntityBase` e manter seu código limpo e consistente:
 
-1.  **Sempre Estenda `RecordBase`:** Nunca use `RecordBase` diretamente. Crie suas classes de modelo (`Customer`, `Order`, etc.) estendendo-o.
+1.  **Sempre Estenda `EntityBase`:** Nunca use `EntityBase` diretamente. Crie suas classes de modelo (`Customer`, `Order`, etc.) estendendo-o.
 2.  **Defina `defaultAttributes` Completamente:** Liste todos os atributos esperados em `static defaultAttributes`, mesmo que sejam `null` ou vazios. Isso garante a estrutura e o funcionamento dos getters automáticos.
 3.  **Abrace a Imutabilidade:** Sempre use `set()`, `updateAttributes()`, `addNested()`, `updateNested()`, `updateManyNested()` para modificar instâncias. Nunca modifique as propriedades internas (`_attributes`, `_relations`) diretamente. Lembre-se de que esses métodos retornam **novas instâncias**.
-4.  **Acesso a Relacionamentos:** Use os getters automáticos (`order.customer.name`) para acessar atributos de relacionamentos `belongsTo`. Para `hasMany`, acesse o `Map` (`order.items`) e use `Map.prototype.get()`, `Map.prototype.values()`, ou o método `array()` do `RecordBase` para converter para um array e iterar.
-5.  **Validações Declarativas:** Mantenha suas funções de validação simples e focadas. O sistema de validação do `RecordBase` é poderoso e deve ser a principal forma de garantir a integridade dos dados no frontend.
+4.  **Acesso a Relacionamentos:** Use os getters automáticos (`order.customer.name`) para acessar atributos de relacionamentos `belongsTo`. Para `hasMany`, acesse o `Map` (`order.items`) e use `Map.prototype.get()`, `Map.prototype.values()`, ou o método `array()` do `EntityBase` para converter para um array e iterar.
+5.  **Validações Declarativas:** Mantenha suas funções de validação simples e focadas. O sistema de validação do `EntityBase` é poderoso e deve ser a principal forma de garantir a integridade dos dados no frontend.
 6.  **`toParams()` para APIs:** Use `toParams()` para preparar os dados para envio ao backend. Ele lida com a serialização recursiva de relacionamentos, garantindo que o payload esteja no formato correto.
-7.  **Testes Robustos:** Mantenha uma suíte de testes abrangente para seus modelos `RecordBase`. Isso é crucial para verificar a imutabilidade, o comportamento dos relacionamentos e as validações à medida que seu aplicativo evolui.
+7.  **Testes Robustos:** Mantenha uma suíte de testes abrangente para seus modelos `EntityBase`. Isso é crucial para verificar a imutabilidade, o comportamento dos relacionamentos e as validações à medida que seu aplicativo evolui.
 
 ---
 
 ## 🧩 Extensibilidade
 
-O `RecordBase` é projetado para ser extensível. Você pode sobrescrever métodos existentes ou adicionar novos para adaptar o comportamento às suas necessidades específicas. Por exemplo, você pode personalizar o método `toParams()` para um modelo específico:
+O `EntityBase` é projetado para ser extensível. Você pode sobrescrever métodos existentes ou adicionar novos para adaptar o comportamento às suas necessidades específicas. Por exemplo, você pode personalizar o método `toParams()` para um modelo específico:
 
 ```javascript
-class CustomOrderRecord extends Order {
+class CustomOrderEntity extends Order {
   toParams() {
     const baseParams = super.toParams(); // Obtém o payload padrão
     return {
@@ -623,9 +623,9 @@ class CustomOrderRecord extends Order {
 
 ---
 
-## 🧪 Testando seu `RecordBase`
+## 🧪 Testando seu `EntityBase`
 
-O `RecordBase` é compatível com frameworks de teste como `Jest` ou `Vitest`. Os testes devem focar em:
+O `EntityBase` é compatível com frameworks de teste como `Jest` ou `Vitest`. Os testes devem focar em:
 
 *   **Imutabilidade:** Verificar se as operações de `set` e `updateAttributes` retornam novas instâncias e não modificam as originais.
 *   **Integridade dos Relacionamentos:** Assegurar que `belongsTo` e `hasMany` instanciam corretamente os modelos relacionados e que as operações aninhadas funcionam.
@@ -636,5 +636,5 @@ O `RecordBase` é compatível com frameworks de teste como `Jest` ou `Vitest`. O
 
 ## 📝 Notas Finais
 
-O sistema `RecordBase` é uma solução elegante para gerenciar o estado de dados complexos em aplicações frontend. Ao padronizar a modelagem, impor a imutabilidade e fornecer ferramentas para validação e serialização, ele ajuda a construir aplicações mais robustas, previsíveis e fáceis de manter.
+O sistema `EntityBase` é uma solução elegante para gerenciar o estado de dados complexos em aplicações frontend. Ao padronizar a modelagem, impor a imutabilidade e fornecer ferramentas para validação e serialização, ele ajuda a construir aplicações mais robustas, previsíveis e fáceis de manter.
 

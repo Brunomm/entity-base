@@ -1,6 +1,6 @@
-# 🧩 RecordBase
+# 🧩 EntityBase
 
-**RecordBase** is a lightweight, schema-driven, immutable base class for modeling data in modern JavaScript/TypeScript applications — especially useful in frontend frameworks like **React** and **Vue**.
+**EntityBase** is a lightweight, schema-driven, immutable base class for modeling data in modern JavaScript/TypeScript applications — especially useful in frontend frameworks like **React** and **Vue**.
 
 It provides declarative validations, relationship handling (`hasMany`, `belongsTo`), built-in serialization for APIs, and a powerful yet minimal architecture for managing application state with confidence.
 
@@ -21,10 +21,10 @@ It provides declarative validations, relationship handling (`hasMany`, `belongsT
 ## 📦 Installation
 
 ```bash
-npm install --save recordbase
+npm install --save entity-base
 ```
 
-Or if you're using it directly in a monorepo or internal project, simply import the `RecordBase` class as a base for your models.
+Or if you're using it directly in a monorepo or internal project, simply import the `EntityBase` class as a base for your models.
 
 ---
 
@@ -33,9 +33,9 @@ Or if you're using it directly in a monorepo or internal project, simply import 
 ### Defining a Model
 
 ```js
-import RecordBase from './record_base';
+import EntityBase from 'entity-base';
 
-class User extends RecordBase {
+class User extends EntityBase {
   static defaultAttributes = {
     name: '',
     age: 0,
@@ -49,8 +49,8 @@ class User extends RecordBase {
   static validates = {
     name: [(val) => ({ isValid: !!val, message: 'is required' })],
     company: [
-      (val, record) => ({
-        isValid: !val || record.age >= 18,
+      (val, entity) => ({
+        isValid: !val || entity.age >= 18,
         message: 'is allowed only for users over 18'
       })
     ]
@@ -130,7 +130,7 @@ expect(user.validate().errors.isEmpty()).toBe(true);
 - `updateNested(relationName, id, attrs)`
 - `updateManyNested(relationName, attrs, ids?)`
 - `clone()` – deep clone for `Errors` and attributes
-- `isNewRecord()` / `isPersisted()`
+- `isNewEntity()` / `isPersisted()`
 - `idOrToken` — returns `id` or generated `_token`
 
 ---
@@ -139,8 +139,8 @@ expect(user.validate().errors.isEmpty()).toBe(true);
 
 All API features, internal methods, and extensibility options are documented in:
 
-- [RecordBase-Documentation.md](docs/documentacao-abrangente.md)
-- [Documentação-Abrangente.md](docs/record_base-documentation.md)
+- [EntityBase-Documentation.md](docs/documentacao-abrangente.md)
+- [Documentação-Abrangente.md](docs/entity_base-documentation.md)
 - [Utilizando o em Projetos React.md](docs/utilizando-em-projetos-react.md)
 
 ---
@@ -159,7 +159,7 @@ MIT License.
 
 ## 🧠 Final Notes
 
-`RecordBase` helps you design predictable, testable, and highly maintainable data models in the frontend world. Whether you're handling nested form state or syncing data with an API — it gives you a clean, immutable foundation to build upon.
+`EntityBase` helps you design predictable, testable, and highly maintainable data models in the frontend world. Whether you're handling nested form state or syncing data with an API — it gives you a clean, immutable foundation to build upon.
 
 Happy coding! 🔨🤖
 

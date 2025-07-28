@@ -1,6 +1,6 @@
-# 📘 RecordBase Documentation
+# 📘 EntityBase Documentation
 
-The `RecordBase` class is a lightweight, immutable, schema-driven entity base for frontend applications. It standardizes how data is modeled, supports deep relationships (`hasMany`, `belongsTo`), provides validation, serialization for APIs, and guarantees consistency across objects.
+The `EntityBase` class is a lightweight, immutable, schema-driven entity base for frontend applications. It standardizes how data is modeled, supports deep relationships (`hasMany`, `belongsTo`), provides validation, serialization for APIs, and guarantees consistency across objects.
 
 ---
 
@@ -12,7 +12,7 @@ The `RecordBase` class is a lightweight, immutable, schema-driven entity base fo
 - ✅ Auto-generated getters for all attributes  
 - ✅ API-friendly with `.toParams()` and `.toObject()`  
 - ✅ Deep validations and error handling  
-- ✅ Useful helper methods like `isNewRecord()`, `validate()`, etc.
+- ✅ Useful helper methods like `isNewEntity()`, `validate()`, etc.
 
 ---
 
@@ -34,12 +34,12 @@ static defaultAttributes = {
 
 ### 2. `hasMany` (optional)
 
-Defines plural child relationships. Values will be stored as `Map<idOrToken, RecordInstance>`.
+Defines plural child relationships. Values will be stored as `Map<idOrToken, EntityInstance>`.
 
 ```js
 static hasMany = {
-  posts: PostRecord,
-  comments: CommentRecord
+  posts: PostEntity,
+  comments: CommentEntity
 };
 ```
 
@@ -47,11 +47,11 @@ static hasMany = {
 
 ### 3. `belongsTo` (optional)
 
-Defines singular parent relationships. Each value is stored as a single record instance.
+Defines singular parent relationships. Each value is stored as a single entity instance.
 
 ```js
 static belongsTo = {
-  company: CompanyRecord
+  company: CompanyEntity
 };
 ```
 
@@ -70,10 +70,10 @@ static validates = {
 
 ---
 
-## 🚀 Instantiating a Record
+## 🚀 Instantiating a Entity
 
 ```js
-const user = new UserRecord({ name: 'Alice', age: 25 });
+const user = new UserEntity({ name: 'Alice', age: 25 });
 ```
 
 ---
@@ -90,13 +90,13 @@ user.get('name') // → "Alice"
 Relationships too:
 
 ```js
-user.company     // → CompanyRecord instance
-user.posts       // → Map of PostRecord instances
+user.company     // → CompanyEntity instance
+user.posts       // → Map of PostEntity instances
 ```
 
 ---
 
-## 🔄 Modifying Records (immutably)
+## 🔄 Modifying Entities (immutably)
 
 ```js
 const updated = user.set('name', 'Bob');
@@ -108,10 +108,10 @@ console.log(user !== updated); // true
 
 ---
 
-## 🧱 Example: Basic Record
+## 🧱 Example: Basic Entity
 
 ```js
-class PersonRecord extends RecordBase {
+class PersonEntity extends EntityBase {
   static defaultAttributes = {
     name: '',
     age: 0
@@ -124,26 +124,26 @@ class PersonRecord extends RecordBase {
 ## 📚 Example: Nested `belongsTo` + `hasMany`
 
 ```js
-class CompanyRecord extends RecordBase {
+class CompanyEntity extends EntityBase {
   static defaultAttributes = { name: '' };
 }
 
-class CarRecord extends RecordBase {
+class CarEntity extends EntityBase {
   static defaultAttributes = { model: '', price: 0 };
 }
 
-class UserRecord extends RecordBase {
+class UserEntity extends EntityBase {
   static defaultAttributes = {
     name: '',
     company: null,
     cars: []
   };
 
-  static belongsTo = { company: CompanyRecord };
-  static hasMany = { cars: CarRecord };
+  static belongsTo = { company: CompanyEntity };
+  static hasMany = { cars: CarEntity };
 }
 
-const user = new UserRecord({
+const user = new UserEntity({
   name: 'João',
   company: { name: 'Google' },
   cars: [{ model: 'Tesla', price: 80000 }, { model: 'Civic', price: 40000 }]
@@ -155,7 +155,7 @@ console.log(user.cars.size);    // 2
 
 ---
 
-## 🔁 Updating Nested Records
+## 🔁 Updating Nested Entities
 
 ```js
 const civicID = Array.from(user.cars.keys())[1];
@@ -175,7 +175,7 @@ console.log(updatedUser.cars.get(civicID).price); // 45000
 ## 🧪 Validation & Errors
 
 ```js
-class AccountRecord extends RecordBase {
+class AccountEntity extends EntityBase {
   static defaultAttributes = { email: '' };
 
   static validates = {
@@ -186,7 +186,7 @@ class AccountRecord extends RecordBase {
   };
 }
 
-const account = new AccountRecord({ email: 'bad-email' });
+const account = new AccountEntity({ email: 'bad-email' });
 const validated = account.validate();
 
 console.log(validated.errors.fullMessages()); // ["Email is invalid"]
@@ -227,8 +227,8 @@ You can override `.toParams()` in your own subclass to customize payloads.
 | `.isValid()`         | Returns `true` if no validation errors      |
 | `.toObject()`        | Serializes the full object                  |
 | `.toParams()`        | Payload-ready serialization                 |
-| `.isNewRecord()`     | Returns `true` if no ID exists              |
-| `.isPersisted()`     | Returns `true` if record has an ID          |
+| `.isNewEntity()`     | Returns `true` if no ID exists              |
+| `.isPersisted()`     | Returns `true` if entity has an ID          |
 | `.idOrToken`         | Returns `id` if present, otherwise `_token` |
 
 ---
@@ -237,7 +237,7 @@ You can override `.toParams()` in your own subclass to customize payloads.
 
 - Use `defaultAttributes` in combination with schema builders.
 - Always use `.set()` or `.updateAttributes()` — do not mutate manually.
-- Access related records via auto-getters: `user.company.name`.
+- Access related entities via auto-getters: `user.company.name`.
 - Use `Map` methods like `.get()`, `.set()`, `.entries()` for `hasMany`.
 
 ---
@@ -245,21 +245,21 @@ You can override `.toParams()` in your own subclass to customize payloads.
 ## ✅ Example: Deep Tree
 
 ```js
-class MessageRecord extends RecordBase {
+class MessageEntity extends EntityBase {
   static defaultAttributes = { text: '', read: false };
 }
 
-class ThreadRecord extends RecordBase {
+class ThreadEntity extends EntityBase {
   static defaultAttributes = { title: '', messages: [] };
-  static hasMany = { messages: MessageRecord };
+  static hasMany = { messages: MessageEntity };
 }
 
-class InboxRecord extends RecordBase {
+class InboxEntity extends EntityBase {
   static defaultAttributes = { user_id: null, threads: [] };
-  static hasMany = { threads: ThreadRecord };
+  static hasMany = { threads: ThreadEntity };
 }
 
-const inbox = new InboxRecord({
+const inbox = new InboxEntity({
   user_id: 7,
   threads: [
     {
@@ -283,7 +283,7 @@ console.log(messages.size); // 2
 Feel free to extend or override methods like:
 
 ```js
-class CustomUserRecord extends UserRecord {
+class CustomUserEntity extends UserEntity {
   toParams() {
     return {
       name: this.name,
@@ -310,7 +310,7 @@ Already includes support for `Map`, `instanceof`, and safe identity checks.
 
 ## 📎 Final Notes
 
-The `RecordBase` system is ideal for complex frontend apps (like React or Vue) that need:
+The `EntityBase` system is ideal for complex frontend apps (like React or Vue) that need:
 
 - Entity modeling  
 - Safe data handling  

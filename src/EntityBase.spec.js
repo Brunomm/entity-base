@@ -1,14 +1,14 @@
-import RecordBase from './index';
+import EntityBase from './EntityBase';
 
-class Carro extends RecordBase {
+class Car extends EntityBase {
   static defaultAttributes = { name: '', ano: 0, preco: 0 };
 }
 
-class Company extends RecordBase {
+class Company extends EntityBase {
   static defaultAttributes = { name: '' };
 }
 
-class UserRecord extends RecordBase {
+class UserEntity extends EntityBase {
   static defaultAttributes = {
     name: '',
     idade: 20,
@@ -17,26 +17,26 @@ class UserRecord extends RecordBase {
   };
 
   static belongsTo = { company: Company };
-  static hasMany = { carros: Carro };
+  static hasMany = { carros: Car };
 
   static validates = {
     name: [(val) => ({
       isValid: !!val,
-      message: 'é obrigatório'
+      message: 'is required'
     })],
     company: [
-      (val, record) => ({
-        isValid: !val || record.get('idade') >= 18,
-        message: 'é permitido apenas para pessoas maiores de 18 anos'
+      (val, entity) => ({
+        isValid: !val || entity.get('idade') >= 18,
+        message: 'only allowed for users 18+'
       })
     ]
   };
 }
 
-describe('RecordBase', () => {
-  describe('instanciação e atributos', () => {
-    it('instancia com defaults e relacionamentos corretos', () => {
-      const user = new UserRecord();
+describe('EntityBase', () => {
+  describe('instantiation and attributes', () => {
+    it('creates an instance with defaults and relationships', () => {
+      const user = new UserEntity();
 
       expect(user.get('name')).toBe('');
       expect(user.get('idade')).toBe(20);
@@ -46,16 +46,16 @@ describe('RecordBase', () => {
       expect(user.get('carros')).toBeInstanceOf(Map);
     });
 
-    it('usa valores passados corretamente', () => {
-      const user = new UserRecord({ name: 'Léo', idade: 20 });
-      expect(user.get('name')).toBe('Léo');
+    it('accepts provided values', () => {
+      const user = new UserEntity({ name: 'Leo', idade: 20 });
+      expect(user.get('name')).toBe('Leo');
       expect(user.get('idade')).toBe(20);
     });
   });
 
-  describe('imutabilidade', () => {
-    it('não altera original com set()', () => {
-      const user = new UserRecord({ name: 'Carlos' });
+  describe('immutability', () => {
+    it('set() returns new instance without modifying original', () => {
+      const user = new UserEntity({ name: 'Carlos' });
       const updated = user.set('name', 'Ana');
 
       expect(updated).not.toBe(user);
@@ -63,15 +63,15 @@ describe('RecordBase', () => {
       expect(user.get('name')).toBe('Carlos');
     });
 
-    it('retorna mesmo objeto se valor não muda', () => {
-      const user = new UserRecord({ name: 'Carlos' });
+    it('returns same instance if value does not change', () => {
+      const user = new UserEntity({ name: 'Carlos' });
       const same = user.set('name', 'Carlos');
 
       expect(same).toBe(user);
     });
 
-    it('updateAttributes altera múltiplos atributos', () => {
-      const user = new UserRecord({ name: 'Eva', idade: 40 });
+    it('updateAttributes updates multiple fields', () => {
+      const user = new UserEntity({ name: 'Eva', idade: 40 });
       const updated = user.updateAttributes({ name: 'Eva L.', idade: 41 });
 
       expect(updated.get('name')).toBe('Eva L.');
@@ -79,17 +79,17 @@ describe('RecordBase', () => {
     });
   });
 
-  describe('belongsTo e hasMany', () => {
-    it('atualiza belongsTo corretamente', () => {
-      const user = new UserRecord({ name: 'Maria' });
+  describe('belongsTo and hasMany', () => {
+    it('updates belongsTo correctly', () => {
+      const user = new UserEntity({ name: 'Maria' });
       const updated = user.set('company', { name: 'NovaCo' });
 
       expect(updated.get('company')).toBeInstanceOf(Company);
       expect(updated.get('company').get('name')).toBe('NovaCo');
     });
 
-    it('preserva outros relacionamentos ao alterar campo comum', () => {
-      const user = new UserRecord({
+    it('preserves other relationships when updating a regular field', () => {
+      const user = new UserEntity({
         name: 'Ana',
         company: { name: 'Empresa' },
         carros: [{ name: 'Celta', ano: 2009 }]
@@ -101,8 +101,8 @@ describe('RecordBase', () => {
       expect(updated.get('carros')).toBe(user.get('carros'));
     });
 
-    it('altera um carro sem afetar os outros', () => {
-      const user = new UserRecord({
+    it('updates one car without affecting the others', () => {
+      const user = new UserEntity({
         name: 'João',
         carros: [
           { name: 'Civic', preco: 90000 },
@@ -110,34 +110,34 @@ describe('RecordBase', () => {
         ]
       });
 
-      const originalCarros = user.get('carros');
-      const [civicID, golID] = Array.from(originalCarros.keys());
+      const originalCars = user.get('carros');
+      const [civicID, golID] = Array.from(originalCars.keys());
 
-      const civic = originalCarros.get(civicID);
-      const novoCivic = civic.set('preco', 92000);
-      const novosCarros = new Map(originalCarros);
-      novosCarros.set(civicID, novoCivic);
+      const civic = originalCars.get(civicID);
+      const updatedCivic = civic.set('preco', 92000);
+      const updatedCars = new Map(originalCars);
+      updatedCars.set(civicID, updatedCivic);
 
-      const updatedUser = user.set('carros', novosCarros);
+      const updatedUser = user.set('carros', updatedCars);
 
       expect(updatedUser.get('carros')).not.toBe(user.get('carros'));
-      expect(updatedUser.get('carros').get(golID)).toBe(originalCarros.get(golID));
+      expect(updatedUser.get('carros').get(golID)).toBe(originalCars.get(golID));
       expect(updatedUser.get('carros').get(civicID)).not.toBe(civic);
     });
   });
 
   describe('nested methods', () => {
-    it('addNested adiciona item corretamente', () => {
-      const user = new UserRecord();
+    it('addNested adds a new item correctly', () => {
+      const user = new UserEntity();
       const [userWithCar, newCar] = user.addNested('carros', { name: 'Civic' });
 
       expect(userWithCar.get('carros').size).toBe(1);
-      expect(Array.from(userWithCar.get('carros').values())[0]).toBeInstanceOf(Carro);
+      expect(Array.from(userWithCar.get('carros').values())[0]).toBeInstanceOf(Car);
       expect(newCar.get('name')).toBe('Civic');
     });
 
-    it('updateNested atualiza item corretamente', () => {
-      const user = new UserRecord({ carros: [{ name: 'Onix' }] });
+    it('updateNested updates an item by key', () => {
+      const user = new UserEntity({ carros: [{ name: 'Onix' }] });
       const id = Array.from(user.get('carros').keys())[0];
 
       const [updatedUser, updatedCar] = user.updateNested('carros', id, { name: 'Onix Plus' });
@@ -146,13 +146,13 @@ describe('RecordBase', () => {
       expect(updatedUser.get('carros').get(id).get('name')).toBe('Onix Plus');
     });
 
-    it('updateNested lança erro se chave inválida', () => {
-      const user = new UserRecord();
+    it('updateNested throws error for invalid key', () => {
+      const user = new UserEntity();
       expect(() => user.updateNested('carros', 'invalid', { name: 'X' })).toThrow();
     });
 
-    it('updateManyNested aplica mudanças apenas a chaves indicadas', () => {
-      const user = new UserRecord({
+    it('updateManyNested only applies updates to specified keys', () => {
+      const user = new UserEntity({
         carros: [
           { name: 'Gol', preco: 30 },
           { name: 'Uno', preco: 40 }
@@ -168,30 +168,30 @@ describe('RecordBase', () => {
     });
   });
 
-  describe('validações', () => {
-    it('valida name e preenche erros corretamente', () => {
-      const user = new UserRecord(); // name vazio
+  describe('validation', () => {
+    it('validates name and populates errors correctly', () => {
+      const user = new UserEntity(); // name is empty
       const validated = user.validate();
 
       const errors = validated.get('errors');
       expect(errors.isEmpty()).toBe(false);
-      expect(errors.fullMessages()[0]).toMatch(/Name é obrigatório/);
+      expect(errors.fullMessages()[0]).toMatch(/Name is required/);
     });
 
-    it('isValid() retorna false se houver erros', () => {
-      const user = new UserRecord();
+    it('isValid() returns false if there are errors', () => {
+      const user = new UserEntity();
       const validated = user.validate();
       expect(validated.isValid()).toBe(false);
     });
 
-    it('isValid() retorna true se não houver erros', () => {
-      const user = new UserRecord({ name: 'Bruno' });
+    it('isValid() returns true if there are no errors', () => {
+      const user = new UserEntity({ name: 'Bruno' });
       const validated = user.validate();
       expect(validated.isValid()).toBe(true);
     });
 
-    it('deve invalidar company para idade menor que 18', () => {
-      const user = new UserRecord({
+    it('should invalidate company if age is under 18', () => {
+      const user = new UserEntity({
         name: 'Joãozinho',
         idade: 16,
         company: { name: 'Startup' }
@@ -201,14 +201,14 @@ describe('RecordBase', () => {
       const errors = validated.get('errors');
 
       expect(errors.isEmpty()).toBe(false);
-      expect(errors.messages.company).toContain('é permitido apenas para pessoas maiores de 18 anos');
+      expect(errors.messages.company).toContain('only allowed for users 18+');
       expect(errors.fullMessages().some(msg =>
-        msg.match(/Company.*maiores de 18/)
+        msg.match(/Company.*18/)
       )).toBe(true);
     });
 
-    it('deve aceitar company se idade for 18 ou mais', () => {
-      const user = new UserRecord({
+    it('should accept company if age is 18 or more', () => {
+      const user = new UserEntity({
         name: 'Maria',
         idade: 18,
         company: { name: 'DevCorp' }
@@ -218,10 +218,10 @@ describe('RecordBase', () => {
       expect(validated.get('errors').isEmpty()).toBe(true);
     });
 
-    it('não deve validar company se não estiver presente', () => {
-      const user = new UserRecord({
+    it('should skip company validation if not provided', () => {
+      const user = new UserEntity({
         name: 'Lucas',
-        idade: 16 // idade baixa, mas sem company
+        idade: 16
       });
 
       const validated = user.validate();
@@ -229,9 +229,9 @@ describe('RecordBase', () => {
     });
   });
 
-  describe('serialização', () => {
-    it('toObject retorna objeto plano com relações', () => {
-      const user = new UserRecord({
+  describe('serialization', () => {
+    it('toObject returns flat object with relationships', () => {
+      const user = new UserEntity({
         name: 'Lucas',
         idade: 25,
         company: { name: 'Amazônia' },
@@ -243,8 +243,8 @@ describe('RecordBase', () => {
       expect(obj.carros).toBeInstanceOf(Map);
     });
 
-    it('toParams serializa com profundidade', () => {
-      const user = new UserRecord({
+    it('toParams serializes deeply nested values', () => {
+      const user = new UserEntity({
         name: 'Luana',
         idade: 30,
         company: { name: 'Tech' },
@@ -260,15 +260,15 @@ describe('RecordBase', () => {
     });
   });
 
-  describe('utilitários e propriedades derivadas', () => {
-    it('expõe getters automáticos', () => {
-      const user = new UserRecord({ name: 'João', idade: 28 });
+  describe('utilities and derived properties', () => {
+    it('auto-exposes attributes as getters', () => {
+      const user = new UserEntity({ name: 'João', idade: 28 });
       expect(user.name).toBe('João');
       expect(user.idade).toBe(28);
     });
 
-    it('expõe relacionamentos como getters', () => {
-      const user = new UserRecord({
+    it('auto-exposes relationships as getters', () => {
+      const user = new UserEntity({
         company: { name: 'Rocket Inc.' },
         carros: [{ name: 'Tesla' }]
       });
@@ -277,21 +277,21 @@ describe('RecordBase', () => {
       expect(Array.from(user.carros.values())[0].name).toBe('Tesla');
     });
 
-    it('idOrToken deve retornar token ou id', () => {
-      const user = new UserRecord({ id: 55 });
+    it('idOrToken returns token or id', () => {
+      const user = new UserEntity({ id: 55 });
       expect(user.idOrToken).toBe(55);
 
-      const user2 = new UserRecord();
+      const user2 = new UserEntity();
       expect(typeof user2.idOrToken).toBe('string');
     });
 
-    it('isNewRecord e isPersisted funcionam corretamente', () => {
-      const user = new UserRecord();
-      const persisted = new UserRecord({ id: 10 });
+    it('isNewEntity and isPersisted return correct values', () => {
+      const user = new UserEntity();
+      const persisted = new UserEntity({ id: 10 });
 
-      expect(user.isNewRecord()).toBe(true);
+      expect(user.isNewEntity()).toBe(true);
       expect(user.isPersisted()).toBe(false);
-      expect(persisted.isNewRecord()).toBe(false);
+      expect(persisted.isNewEntity()).toBe(false);
       expect(persisted.isPersisted()).toBe(true);
     });
   });

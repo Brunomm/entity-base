@@ -1,12 +1,48 @@
 {
+  "name": "entity-base",
   "type": "module",
+  "version": "1.0.0-beta",
+  "description": "A lightweight, immutable and schema-driven base class for data modeling with validations and relationships.",
+  "main": "src/index.js",
+  "exports": {
+    ".": {
+      "import": "./src/index.js"
+    }
+  },
   "scripts": {
-    "test": "jest"
+    "test": "jest --coverage"
+  },
+  "keywords": [
+    "entity",
+    "model",
+    "record",
+    "orm",
+    "immutable",
+    "frontend",
+    "validation",
+    "hasMany",
+    "belongsTo",
+    "state"
+  ],
+  "author": "Bruno Mucelini Mergen <bruno@bmm.tec.br>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Brunomm/entity-base"
+  },
+  "bugs": {
+    "url": "https://github.com/Brunomm/entity-base/issues"
+  },
+  "homepage": "https://github.com/Brunomm/entity-base#readme",
+  "engines": {
+    "node": ">=10"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.28.0",
     "babel-jest": "^30.0.5",
-    "jest": "^30.0.5",
-    "vite": "^7.0.6"
+    "jest": "^30.0.5"
   }
 }
