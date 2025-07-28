@@ -33,7 +33,7 @@ Or if you're using it directly in a monorepo or internal project, simply import 
 ### Defining a Model
 
 ```js
-import EntityBase from 'entity-base';
+import EntityBase from '@brunomergen/entity-base'
 
 class User extends EntityBase {
   static defaultAttributes = {
