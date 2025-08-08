@@ -21,7 +21,7 @@ It provides declarative validations, relationship handling (`hasMany`, `belongsT
 ## 📦 Installation
 
 ```bash
-npm install --save @brunomergen/entity-base@1.0.0-beta
+npm install --save @btec/entity-base@1.0.0-beta
 ```
 
 Or if you're using it directly in a monorepo or internal project, simply import the `EntityBase` class as a base for your models.
@@ -33,7 +33,7 @@ Or if you're using it directly in a monorepo or internal project, simply import 
 ### Defining a Model
 
 ```js
-import EntityBase from '@brunomergen/entity-base'
+import EntityBase from '@btec/entity-base'
 
 class User extends EntityBase {
   static defaultAttributes = {

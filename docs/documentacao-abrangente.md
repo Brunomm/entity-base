@@ -217,7 +217,7 @@ Vamos definir as entidades para um marketplace usando `EntityBase` e demonstrar 
 
 ```javascript
 // marketplace_entities.js
-import EntityBase from '@brunomergen/entity-base'
+import EntityBase from '@btec/entity-base'
 
 class Address extends EntityBase {
   static defaultAttributes = {

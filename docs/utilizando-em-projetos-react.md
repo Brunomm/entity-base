@@ -10,7 +10,7 @@ Primeiro, certifique-se de que suas entidades `EntityBase` (como `Customer`, `Or
 
 ```javascript
 // marketplace_entities.js
-import EntityBase from '@brunomergen/entity-base'
+import EntityBase from '@btec/entity-base'
 
 // ... (definição das classes Address, Customer, Product, OrderItem, Payment, Order)
 

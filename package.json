@@ -1,5 +1,5 @@
 {
-  "name": "@brunomergen/entity-base",
+  "name": "@btec/entity-base",
   "type": "module",
   "version": "1.0.0-beta",
   "description": "A lightweight, immutable and schema-driven base class for data modeling with validations and relationships.",
