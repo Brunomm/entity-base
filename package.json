@@ -1,7 +1,7 @@
 {
   "name": "@btec/entity-base",
   "type": "module",
-  "version": "1.0.0-beta",
+  "version": "0.0.1",
   "description": "A lightweight, immutable and schema-driven base class for data modeling with validations and relationships.",
   "main": "src/index.js",
   "exports": {
